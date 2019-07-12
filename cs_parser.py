@@ -4,10 +4,6 @@ import warnings
 import datetime
 warnings.filterwarnings('ignore')
 
-# url = 'https://www.hltv.org/matches/2334827/nemiga-vs-ago-gameagents-league-season-3'
-# html = requests.get(url).text
-# soup = BeautifulSoup(html)
-
 
 def get_href(url):
     html = requests.get(url).text
@@ -26,15 +22,23 @@ def get_href(url):
     return href_lst
 
 
+def get_teams(url):
+    teams_lst = []
+    html = requests.get(url).text
+    soup = BeautifulSoup(html)
+    div = soup.find_all(class_='teamName')
+    for i in div:
+        if i.get_text() not in teams_lst:
+            teams_lst.append(i.get_text())
+    return teams_lst
+
+
 def get_team_href(href_lst):
     link_lst = []
     for i in href_lst:
         link = 'https://www.hltv.org' + i
         link_lst.append(link)
     return link_lst
-
-
-print(get_team_href(get_href('https://www.hltv.org/matches/2334827/nemiga-vs-ago-gameagents-league-season-3')))
 
 
 def get_rankings(link_lst):
@@ -67,17 +71,14 @@ def get_players_links(link_lst):
         links = div.find_all('a')
         for link in links:
             link = 'https://www.hltv.org/stats' + link.get('href')
-            # обрезаем строку, чтобы вставить нужный адрес страницы со всей статой игрока
             a = link.rfind('player')
             b = link[a+6:]
-            # скрепляем все переменные в нужный нам адрес со статой игрока
             link = 'https://www.hltv.org/stats' + '/players' + b + '?startDate=' + six_months_ago + \
                    '&endDate=' + today
             players_links.append(link)
     return players_links
 
 
-# if '.' not in ...
 def get_players_stats(players_links):
     player_stats = []
     for i in players_links:
@@ -121,17 +122,33 @@ def get_winrate(link_lst):
     return final_winrates
 
 
+def get_features(player_stats):
+    features_name = []
+    features_values = player_stats.copy()
+    for i in player_stats:
+        if ' ' in i:
+            features_values.remove(i)
+        if i not in features_name and ' ' in i:
+            features_name.append(i)
+    return features_name, features_values
+
+
 def main():
-    f1 = get_href('https://www.hltv.org/matches/2334827/nemiga-vs-ago-gameagents-league-season-3')
+    url = 'https://www.hltv.org/matches/2334868/g2-vs-winstrike-good-game-league-2019'
+    f1 = get_href(url)
     f2 = get_team_href(f1)
     f3 = get_rankings(f2)
     f4 = get_players_links(f2)
     f5 = get_players_stats(f4)
     f6 = get_winrate(f2)
+    f7 = get_features(f5)
+    f8 = get_teams(url)
+    print(f8)
     print(f3)
     print(f4)
     print(f5)
     print(f6)
+    print(f7)
 
 
 if __name__ == '__main__':
