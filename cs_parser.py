@@ -134,7 +134,7 @@ def get_features(player_stats):
 
 
 def main():
-    url = 'https://www.hltv.org/matches/2334868/g2-vs-winstrike-good-game-league-2019'
+    url = input('Вставьте ссылку на матч, результат которого хотите предсказать: ')
     f1 = get_href(url)
     f2 = get_team_href(f1)
     f3 = get_rankings(f2)
